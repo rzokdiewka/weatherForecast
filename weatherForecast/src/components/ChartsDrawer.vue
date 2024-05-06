@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import * as echarts from 'echarts'
-import { onMounted, ref, toRaw, watch } from 'vue'
-import WeatherData from '@/components/Forecast.vue'
+import { onMounted, ref, watch } from 'vue'
+import WeatherData from '@/components/ForecastFetcher.vue'
 type EChartsOption = echarts.EChartsOption
 
 // console.log(chartDom)
 let myChart
 let option: EChartsOption
 const props = defineProps({
-  date: Array<String>,
-  temperature: Array<Number>,
-  pressure: Array<Number>,
-  precipitation: Array<Number>,
-  cloud: Array<Number>,
-  wind: Array<Number>
+  date: [] as string[],
+  temperature: [] as number[],
+  pressure: [] as number[],
+  precipitation: [] as string[],
+  skyClearness: [] as number[],
+  wind: [] as number[]
 })
 const data = ref()
 
@@ -223,7 +223,7 @@ function drawChart() {
             }
           ])
         },
-        data: props.cloud
+        data: props.skyClearness
       },
       {
         name: 'Wind speed',
@@ -241,6 +241,8 @@ onMounted(() => {
 })
 </script>
 
-<template></template>
+<!--<template>-->
+<!--  <div id="chart-container" style="width: 1000px; height: 600px"/>-->
+<!--</template>-->
 
 <style scoped></style>

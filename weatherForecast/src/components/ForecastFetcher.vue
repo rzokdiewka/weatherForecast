@@ -14,21 +14,21 @@ const props = defineProps({
 export interface WeatherData {
   current: {
     time: Date
-    temperature2m: Number
-    isDay: Number
-    precipitation: Number
-    cloudCover: Number
-    surfacePressure: Number
-    windSpeed10m: Number
-    windDirection10m: Number
+    temperature2m: number
+    isDay: number
+    precipitation: number
+    cloudCover: number
+    surfacePressure: number
+    windSpeed10m: number
+    windDirection10m: number
   }
   hourly: {
-    time: Date[]
-    temperature2m: Float32Array
-    precipitation: Float32Array
-    surfacePressure: Float32Array
-    cloudCover: Float32Array
-    windSpeed10m: Float32Array
+    time: Array<string>
+    temperature2m: Array<number>
+    precipitation: Array<string>
+    surfacePressure: Array<number>
+    skyClearness: Array<number>
+    windSpeed10m: Array<number>
   }
 }
 
@@ -49,6 +49,9 @@ const params = {
   timezone: 'auto'
 }
 const url = 'https://api.open-meteo.com/v1/forecast'
+
+const timezone = ref()
+
 const data = async () => {
   const responses = await fetchWeatherApi(url, params)
 
@@ -57,14 +60,14 @@ const data = async () => {
 }
 
 // console.log(response)
-const transformData = (response: WeatherApiResponse) => {
+const transformData = (response: WeatherApiResponse) : WeatherData => {
   // Helper function to form time ranges
   const range = (start: number, stop: number, step: number) =>
     Array.from({ length: (stop - start) / step }, (_, i) => start + i * step)
 
   // Attributes for timezone and location
   const utcOffsetSeconds = response.utcOffsetSeconds()
-  const timezone = response.timezone()
+  timezone.value = response.timezone()
   const timezoneAbbreviation = response.timezoneAbbreviation()
   const latitude = response.latitude()
   const longitude = response.longitude()
@@ -88,11 +91,11 @@ const transformData = (response: WeatherApiResponse) => {
       time: range(Number(hourly.time()), Number(hourly.timeEnd()), hourly.interval()).map((t) =>
         new Date((t + utcOffsetSeconds) * 1000).toLocaleString()
       ),
-      temperature2m: hourly.variables(0)!.valuesArray()!,
-      precipitation: hourly.variables(1)!.valuesArray()!,
-      surfacePressure: hourly.variables(2)!.valuesArray()!,
-      cloudCover: hourly.variables(3)!.valuesArray()!,
-      windSpeed10m: hourly.variables(4)!.valuesArray()!
+      temperature2m: Array.from(hourly.variables(0)!.valuesArray()!, (x: number) => Math.round(x)),
+      precipitation: Array.from(hourly.variables(1)!.valuesArray()!, (x) => x.toFixed(2)),
+      surfacePressure: Array.from(hourly.variables(2)!.valuesArray()!, (x) => Math.round(x)),
+      skyClearness: Array.from(hourly.variables(3)!.valuesArray()!, (x) => 100 - Math.round(x)),
+      windSpeed10m: Array.from(hourly.variables(4)!.valuesArray()!, (x) => Math.round(x))
     }
   }
 }
@@ -117,7 +120,7 @@ watch(
 </script>
 
 <template>
-  <div>{{ forecastData }}</div>
+  <div>{{ timezone }}</div>
 </template>
 
 <style scoped></style>
