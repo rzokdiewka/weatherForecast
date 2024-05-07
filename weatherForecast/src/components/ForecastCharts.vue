@@ -1,22 +1,18 @@
 <script setup lang="ts">
 import * as echarts from 'echarts'
 import { onMounted, watch } from 'vue'
+import type { ForecastData } from '@/views/MainView.vue'
 
 type EChartsOption = echarts.EChartsOption
 
 let myChart
 let option: EChartsOption
-const props = defineProps({
-  date: [] as string[],
-  temperature: [] as number[],
-  pressure: [] as number[],
-  precipitation: [] as string[],
-  cloudCover: [] as number[],
-  wind: [] as number[]
-})
+const props = defineProps<{
+  forecastData: ForecastData
+}>()
 
 watch(
-  () => props.temperature,
+  () => props.forecastData.temperature,
   () => {
     drawChart()
   }
@@ -46,7 +42,6 @@ function drawChart() {
     },
     toolbox: {
       feature: {
-        // dataView: { show: true, readOnly: false },
         restore: { show: true },
         saveAsImage: { show: true }
       }
@@ -60,11 +55,11 @@ function drawChart() {
         axisTick: {
           alignWithLabel: true
         },
-        data: props.date?.map(function (str: string) {
+        data: props.forecastData.date?.map(function (str: string) {
           return str.replace(' ', '\n')
         }),
         axisLabel: {
-          interval: 23
+          interval: 11
         }
       }
     ],
@@ -72,8 +67,12 @@ function drawChart() {
       {
         type: 'value',
         name: 'Temperature',
-        min: Math.min(...props.temperature) - (Math.min(...props.temperature) % 10),
-        max: Math.max(...props.temperature) + (Math.max(...props.temperature) % 10),
+        min:
+          Math.min(...props.forecastData.temperature) -
+          (Math.min(...props.forecastData.temperature) % 10),
+        max:
+          Math.max(...props.forecastData.temperature) +
+          (Math.max(...props.forecastData.temperature) % 10),
         position: 'left',
         alignTicks: true,
         axisLine: {
@@ -101,7 +100,7 @@ function drawChart() {
           }
         },
         axisLabel: {
-          formatter: '{value} ml'
+          formatter: '{value} mm'
         }
       },
       {
@@ -127,9 +126,10 @@ function drawChart() {
       {
         type: 'slider',
         xAxisIndex: 0,
-        zoomLock: true,
+        zoomLock: false,
         start: 0,
         end: 100,
+        minValueSpan: 24,
         handleSize: 20,
         right: 'ph',
         top: 'ph',
@@ -142,19 +142,13 @@ function drawChart() {
         name: 'Temperature',
         type: 'line',
         smooth: true,
-        data: props.temperature
+        data: props.forecastData.temperature
       },
-      // {
-      //   name: 'Pressure',
-      //   type: 'bar',
-      //   yAxisIndex: 1,
-      //   data: props.pressure
-      // },
       {
         name: 'Precipitation',
         type: 'bar',
         yAxisIndex: 1,
-        data: props.precipitation
+        data: props.forecastData.precipitation
       },
       {
         name: 'Cloud cover',
@@ -177,14 +171,8 @@ function drawChart() {
             }
           ])
         },
-        data: props.cloudCover
+        data: props.forecastData.cloudCover
       }
-      // {
-      //   name: 'Wind speed',
-      //   type: 'line',
-      //   yAxisIndex: 4,
-      //   data: props.wind
-      // }
     ]
   }
   myChart.setOption(option)
@@ -194,9 +182,3 @@ onMounted(() => {
   drawChart()
 })
 </script>
-
-<!--<template>-->
-<!--  <div id="chart-container" style="width: 1000px; height: 600px"/>-->
-<!--</template>-->
-
-<style scoped></style>
