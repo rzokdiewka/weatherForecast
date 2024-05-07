@@ -14,7 +14,7 @@ export interface ForecastData {
   wind: number[]
 }
 const refetch = ref<boolean>(false)
-const coordinates = reactive({ lon: null, lat: null, name: null })
+const coordinates = reactive({ lon: undefined, lat: undefined, name: undefined })
 const forecastData = reactive<ForecastData>({
   date: [] as string[],
   temperature: [] as number[],
@@ -23,7 +23,7 @@ const forecastData = reactive<ForecastData>({
   cloudCover: [] as number[],
   wind: [] as number[]
 })
-const getCoordinates = (coords) => {
+const getCoordinates = (coords: any) => {
   coordinates.lon = coords.lon.value
   coordinates.lat = coords.lat.value
   coordinates.name = coords.name.value
@@ -32,12 +32,12 @@ const refreshForecast = (refresh: boolean) => {
   refetch.value = refresh
 }
 const getForecastData = (fd: WeatherData) => {
-  forecastData.date = fd.hourly.time
-  forecastData.temperature = fd.hourly.temperature2m
-  forecastData.precipitation = fd.hourly.precipitation
-  forecastData.pressure = fd.hourly.surfacePressure
-  forecastData.cloudCover = fd.hourly.cloudCover
-  forecastData.wind = fd.hourly.windSpeed10m
+  forecastData.date = fd.time
+  forecastData.temperature = fd.temperature2m
+  forecastData.precipitation = fd.precipitation
+  forecastData.pressure = fd.surfacePressure
+  forecastData.cloudCover = fd.cloudCover
+  forecastData.wind = fd.windSpeed10m
 }
 </script>
 
@@ -52,15 +52,7 @@ const getForecastData = (fd: WeatherData) => {
     @update-forecast="getForecastData"
   />
   <div id="chart-container" v-if="coordinates.name" style="width: 1000px; height: 600px">
-    <ForecastCharts
-      :date="forecastData.date"
-      :temperature="forecastData.temperature"
-      :pressure="forecastData.pressure"
-      :precipitation="forecastData.precipitation"
-      :cloudCover="forecastData.cloudCover"
-      :wind="forecastData.wind"
-    />
+    <ForecastCharts :forecastData="forecastData" />
   </div>
-  <ForecastTable :forecastData="forecastData" />
-
+  <ForecastTable v-if="coordinates.name" :forecastData="forecastData" />
 </template>

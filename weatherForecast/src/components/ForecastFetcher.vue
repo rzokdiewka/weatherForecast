@@ -7,31 +7,19 @@ import { ref, watch } from 'vue'
 const emit = defineEmits(['updateForecast'])
 
 const props = defineProps<{
-  town: string
-  lon: number
-  lat: number
+  town?: string
+  lon?: number
+  lat?: number
   refetch: boolean
 }>()
 
 export interface WeatherData {
-  current: {
-    time: Date
-    temperature2m: number
-    isDay: number
-    precipitation: number
-    cloudCover: number
-    surfacePressure: number
-    windSpeed10m: number
-    windDirection10m: number
-  }
-  hourly: {
-    time: Array<string>
-    temperature2m: Array<number>
-    precipitation: Array<string>
-    surfacePressure: Array<number>
-    cloudCover: Array<number>
-    windSpeed10m: Array<number>
-  }
+  time: Array<string>
+  temperature2m: Array<number>
+  precipitation: Array<string>
+  surfacePressure: Array<number>
+  cloudCover: Array<number>
+  windSpeed10m: Array<number>
 }
 
 const forecastData = ref()
@@ -69,32 +57,35 @@ const transformData = (response: WeatherApiResponse): WeatherData => {
 
   // Attributes for timezone and location
   const utcOffsetSeconds = response.utcOffsetSeconds()
+  const currentZoneOffsetSeconds = utcOffsetSeconds + new Date().getTimezoneOffset() * 60
   timezone.value = response.timezoneAbbreviation()
-  const current = response.current()!
   const hourly = response.hourly()!
-
+  console.log('utc', utcOffsetSeconds, currentZoneOffsetSeconds)
   // Note: The order of weather variables in the URL query and the indices below need to match!
+
   return {
-    current: {
-      time: new Date((Number(current.time()) + utcOffsetSeconds) * 1000),
-      temperature2m: current.variables(0)!.value(),
-      isDay: current.variables(1)!.value(),
-      precipitation: current.variables(2)!.value(),
-      cloudCover: current.variables(3)!.value(),
-      surfacePressure: current.variables(4)!.value(),
-      windSpeed10m: current.variables(5)!.value(),
-      windDirection10m: current.variables(6)!.value()
-    },
-    hourly: {
-      time: range(Number(hourly.time()), Number(hourly.timeEnd()), hourly.interval()).map((t) =>
-        new Date((t + utcOffsetSeconds) * 1000).toLocaleString()
-      ),
-      temperature2m: Array.from(hourly.variables(0)!.valuesArray()!, (x: number) => Math.round(x)),
-      precipitation: Array.from(hourly.variables(1)!.valuesArray()!, (x) => x.toFixed(2)),
-      surfacePressure: Array.from(hourly.variables(2)!.valuesArray()!, (x) => Math.round(x)),
-      cloudCover: Array.from(hourly.variables(3)!.valuesArray()!, (x) => Math.round(x)),
-      windSpeed10m: Array.from(hourly.variables(4)!.valuesArray()!, (x) => Math.round(x))
-    }
+    time: range(Number(hourly.time()), Number(hourly.timeEnd()), hourly.interval()).map((t) => {
+      const date = new Date((t + currentZoneOffsetSeconds) * 1000)
+      // const dateString = date.toDateString()
+      const weekDay = date.toDateString().split(' ')[0]
+      if (date.getHours() !== 0)
+        return (
+          weekDay +
+          ', ' +
+          date.toLocaleString(navigator.language, { hour: '2-digit', minute: '2-digit' })
+        )
+      else
+        return (
+          weekDay +
+          ' ' +
+          date.toLocaleString(navigator.language, { month: 'short', day: 'numeric' })
+        )
+    }),
+    temperature2m: Array.from(hourly.variables(0)!.valuesArray()!, (x: number) => Math.round(x)),
+    precipitation: Array.from(hourly.variables(1)!.valuesArray()!, (x) => x.toFixed(2)),
+    surfacePressure: Array.from(hourly.variables(2)!.valuesArray()!, (x) => Math.round(x)),
+    cloudCover: Array.from(hourly.variables(3)!.valuesArray()!, (x) => Math.round(x)),
+    windSpeed10m: Array.from(hourly.variables(4)!.valuesArray()!, (x) => Math.round(x))
   }
 }
 

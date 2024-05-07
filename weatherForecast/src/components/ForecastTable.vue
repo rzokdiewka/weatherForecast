@@ -11,7 +11,8 @@ const props = defineProps<{
     <table>
       <thead>
         <tr>
-          <th>Date, hour</th>
+          <th>Date</th>
+          <th>Hour</th>
           <th>Temperature</th>
           <th>Precipitation</th>
           <th>Cloud cover</th>
@@ -21,14 +22,16 @@ const props = defineProps<{
       </thead>
       <tbody id="example-1">
         <tr v-for="(item, index) in props.forecastData.date" :key="index">
-          <td>
-            {{ (item) }}
+          <td rowspan="24" v-if="index % 24 == 0">
+            {{ props.forecastData.date[index % 24].split(', ')[0] }}
           </td>
-          <td>{{ props.forecastData.temperature[index] }} &degC</td>
-          <td>{{ props.forecastData.precipitation[index] }} ml</td>
+          <td v-if="index % 24 == 0">00:00</td>
+          <td v-else>{{ item.split(' ')[1] }}</td>
+          <td>{{ props.forecastData.temperature[index] }} &deg;C</td>
+          <td>{{ props.forecastData.precipitation[index] }} mm</td>
           <td>{{ props.forecastData.cloudCover[index] }} %</td>
           <td>{{ props.forecastData.pressure[index] }} hPa</td>
-          <td>{{props.forecastData.w}}{{ props.forecastData.wind[index] }} km/h</td>
+          <td>{{ props.forecastData.wind[index] }} km/h</td>
         </tr>
       </tbody>
     </table>

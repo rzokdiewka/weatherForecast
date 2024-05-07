@@ -8,13 +8,4 @@ import Main from '@/views/MainView.vue'
   </main>
 </template>
 
-<style scoped>
-main {
-  width: 100%;
-  height: auto;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-around;
-  align-items: center;
-}
-</style>
+<style scoped></style>

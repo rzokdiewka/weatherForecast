@@ -1,11 +1,19 @@
 @import './base.css';
 
 #app {
-  /*max-width: 1280px;*/
+  position: absolute;
   display: flex;
-  /*margin: 0 auto;*/
-  /*padding: 2rem;*/
-  /*font-weight: normal;*/
+  justify-content: center;
+}
+
+main {
+  width: auto;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  margin: 2rem;
 }
 
 input {
@@ -35,9 +43,13 @@ div {
   display: flex;
 }
 
-table, th, td {
+table,
+th,
+td {
   border: 0.1rem solid #ccc;
   border-collapse: collapse;
   padding: 0.5rem;
   margin: 2rem;
+  align-content: start;
+  text-align: center;
 }
