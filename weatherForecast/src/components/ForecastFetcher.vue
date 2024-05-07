@@ -6,12 +6,12 @@ import { ref, watch } from 'vue'
 
 const emit = defineEmits(['updateForecast'])
 
-const props = defineProps({
-  town: String,
-  lon: Number,
-  lat: Number,
-  refetch: Boolean
-})
+const props = defineProps<{
+  town: string
+  lon: number
+  lat: number
+  refetch: boolean
+}>()
 
 export interface WeatherData {
   current: {

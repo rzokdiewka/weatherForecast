@@ -34,3 +34,10 @@ button:active {
 div {
   display: flex;
 }
+
+table, th, td {
+  border: 0.1rem solid #ccc;
+  border-collapse: collapse;
+  padding: 0.5rem;
+  margin: 2rem;
+}

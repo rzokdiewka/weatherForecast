@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import TownSearch from '@/components/TownSearch.vue'
-import Forecast, { type WeatherData } from '@/components/ForecastFetcher.vue'
-import Charts from '@/components/ChartsDrawer.vue'
+import ForecastFetcher, { type WeatherData } from '@/components/ForecastFetcher.vue'
+import ForecastCharts from '@/components/ForecastCharts.vue'
+import ForecastTable from '@/components/ForecastTable.vue'
 import { reactive, ref } from 'vue'
 
+export interface ForecastData {
+  date: string[]
+  temperature: number[]
+  pressure: number[]
+  precipitation: string[]
+  cloudCover: number[]
+  wind: number[]
+}
 const refetch = ref<boolean>(false)
 const coordinates = reactive({ lon: null, lat: null, name: null })
-const forecastData = reactive({
+const forecastData = reactive<ForecastData>({
   date: [] as string[],
   temperature: [] as number[],
   pressure: [] as number[],
@@ -35,16 +44,15 @@ const getForecastData = (fd: WeatherData) => {
 <template>
   <town-search @update-coordinates="getCoordinates" @refresh="refreshForecast" />
 
-  <forecast
+  <ForecastFetcher
     :town="coordinates.name"
     :lon="coordinates.lon"
     :lat="coordinates.lat"
     :refetch="refetch"
     @update-forecast="getForecastData"
   />
-  <div id="chart-container"     v-if="coordinates.name"
-        style="width: 1000px; height: 600px">
-    <charts
+  <div id="chart-container" v-if="coordinates.name" style="width: 1000px; height: 600px">
+    <ForecastCharts
       :date="forecastData.date"
       :temperature="forecastData.temperature"
       :pressure="forecastData.pressure"
@@ -53,4 +61,6 @@ const getForecastData = (fd: WeatherData) => {
       :wind="forecastData.wind"
     />
   </div>
+  <ForecastTable :forecastData="forecastData" />
+
 </template>

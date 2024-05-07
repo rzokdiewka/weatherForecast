@@ -60,7 +60,7 @@ function drawChart() {
         axisTick: {
           alignWithLabel: true
         },
-        data: props.date.map(function (str: string) {
+        data: props.date?.map(function (str: string) {
           return str.replace(' ', '\n')
         }),
         axisLabel: {
