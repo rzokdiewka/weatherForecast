@@ -8,30 +8,29 @@
   /*font-weight: normal;*/
 }
 
-/*a,*/
-/*.green {*/
-/*  text-decoration: none;*/
-/*  color: hsla(160, 100%, 37%, 1);*/
-/*  transition: 0.4s;*/
-/*  padding: 3px;*/
-/*}*/
+input {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 0.1rem solid #ccc;
+  border-radius: 0.4rem;
+  font-size: 1rem;
+}
 
-/*@media (hover: hover) {*/
-/*  a:hover {*/
-/*    background-color: hsla(160, 100%, 37%, 0.2);*/
-/*  }*/
-/*}*/
+button {
+  margin: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 0.1rem solid #ccc;
+  border-radius: 0.4rem;
+  font-size: 1rem;
+}
+button:hover {
+  background-color: #ccc;
+}
 
-/*@media (min-width: 1024px) {*/
-/*  body {*/
-/*    display: flex;*/
-/*    flex-direction: column;*/
-/*    place-items: center;*/
-/*  }*/
+button:active {
+  background-color: buttonface;
+}
 
-/*  #app {*/
-/*    display: flex;*/
-/*    flex-direction: column;*/
-/*    !*padding: 0 2rem;*!*/
-/*  }*/
-/*}*/
+div {
+  display: flex;
+}

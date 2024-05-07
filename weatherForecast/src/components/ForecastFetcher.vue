@@ -7,8 +7,10 @@ import { ref, watch } from 'vue'
 const emit = defineEmits(['updateForecast'])
 
 const props = defineProps({
+  town: String,
   lon: Number,
-  lat: Number
+  lat: Number,
+  refetch: Boolean
 })
 
 export interface WeatherData {
@@ -27,7 +29,7 @@ export interface WeatherData {
     temperature2m: Array<number>
     precipitation: Array<string>
     surfacePressure: Array<number>
-    skyClearness: Array<number>
+    cloudCover: Array<number>
     windSpeed10m: Array<number>
   }
 }
@@ -60,18 +62,14 @@ const data = async () => {
 }
 
 // console.log(response)
-const transformData = (response: WeatherApiResponse) : WeatherData => {
+const transformData = (response: WeatherApiResponse): WeatherData => {
   // Helper function to form time ranges
   const range = (start: number, stop: number, step: number) =>
     Array.from({ length: (stop - start) / step }, (_, i) => start + i * step)
 
   // Attributes for timezone and location
   const utcOffsetSeconds = response.utcOffsetSeconds()
-  timezone.value = response.timezone()
-  const timezoneAbbreviation = response.timezoneAbbreviation()
-  const latitude = response.latitude()
-  const longitude = response.longitude()
-
+  timezone.value = response.timezoneAbbreviation()
   const current = response.current()!
   const hourly = response.hourly()!
 
@@ -94,15 +92,16 @@ const transformData = (response: WeatherApiResponse) : WeatherData => {
       temperature2m: Array.from(hourly.variables(0)!.valuesArray()!, (x: number) => Math.round(x)),
       precipitation: Array.from(hourly.variables(1)!.valuesArray()!, (x) => x.toFixed(2)),
       surfacePressure: Array.from(hourly.variables(2)!.valuesArray()!, (x) => Math.round(x)),
-      skyClearness: Array.from(hourly.variables(3)!.valuesArray()!, (x) => 100 - Math.round(x)),
+      cloudCover: Array.from(hourly.variables(3)!.valuesArray()!, (x) => Math.round(x)),
       windSpeed10m: Array.from(hourly.variables(4)!.valuesArray()!, (x) => Math.round(x))
     }
   }
 }
 
 watch(
-  () => props.lon,
+  () => [props.refetch, props.lat, props.lon],
   () => {
+    console.log('fetch', props)
     params.latitude = props.lat
     params.longitude = props.lon
     data()
@@ -120,7 +119,7 @@ watch(
 </script>
 
 <template>
-  <div>{{ timezone }}</div>
+  <div v-if="town">{{ town }}, {{ timezone }}</div>
 </template>
 
 <style scoped></style>

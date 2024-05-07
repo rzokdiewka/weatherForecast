@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import * as echarts from 'echarts'
-import { onMounted, ref, watch } from 'vue'
-import WeatherData from '@/components/ForecastFetcher.vue'
+import { onMounted, watch } from 'vue'
+
 type EChartsOption = echarts.EChartsOption
 
-// console.log(chartDom)
 let myChart
 let option: EChartsOption
 const props = defineProps({
@@ -12,51 +11,42 @@ const props = defineProps({
   temperature: [] as number[],
   pressure: [] as number[],
   precipitation: [] as string[],
-  skyClearness: [] as number[],
+  cloudCover: [] as number[],
   wind: [] as number[]
 })
-const data = ref()
 
 watch(
   () => props.temperature,
   () => {
-    // data.value = toRaw(props.data)
-    console.log('chart', data.value)
     drawChart()
   }
 )
-console.log('data charts', data.value)
 
 function drawChart() {
-  // data.value = toRaw(props.data)
-
-  console.log(
-    'draw',
-    props.temperature,
-    Math.min(...props.pressure) - (Math.min(...props.pressure) % 10),
-    Math.max(...props.pressure) + (Math.max(...props.pressure) % 10)
-  )
   const chartDom = document.getElementById('chart-container')
 
   myChart = echarts.init(chartDom)
 
-  const colors = ['#c65454', '#e015ec', '#668dee', '#FFDA44FF', '#91CC75']
+  const colors = ['#c65454', '#668dee', '#a8a8a8']
 
   option = {
     color: colors,
-
     tooltip: {
       trigger: 'axis',
       axisPointer: {
         type: 'cross'
+      },
+      textStyle: {
+        fontSize: 12
       }
     },
     grid: {
-      right: '20%'
+      right: '15%',
+      bottom: '15%'
     },
     toolbox: {
       feature: {
-        dataView: { show: true, readOnly: false },
+        // dataView: { show: true, readOnly: false },
         restore: { show: true },
         saveAsImage: { show: true }
       }
@@ -64,23 +54,18 @@ function drawChart() {
     legend: {
       data: ['Temperature', 'Pressure', 'Precipitation', 'Cloud cover', 'Wind speed']
     },
-    // visualMap: [
-    //   {
-    //     show: false,
-    //     type: 'continuous',
-    //     seriesIndex: 3,
-    //     min: 0,
-    //     max: 100
-    //   },
-    // ],
     xAxis: [
       {
         type: 'category',
         axisTick: {
           alignWithLabel: true
         },
-        // prettier-ignore
-        data: props.date
+        data: props.date.map(function (str: string) {
+          return str.replace(' ', '\n')
+        }),
+        axisLabel: {
+          interval: 23
+        }
       }
     ],
     yAxis: [
@@ -103,35 +88,16 @@ function drawChart() {
       },
       {
         type: 'value',
-        name: 'Pressure',
-        min: Math.min(...props.pressure) - (Math.min(...props.pressure) % 10),
-        max: Math.max(...props.pressure) + (Math.max(...props.pressure) % 10),
-        position: 'right',
-        alignTicks: true,
-        offset: 70,
-        axisLine: {
-          show: true,
-          lineStyle: {
-            color: colors[1]
-          }
-        },
-        axisLabel: {
-          formatter: '{value} hPa'
-        }
-      },
-      {
-        type: 'value',
         name: 'Precipitation',
         min: 0,
         max: 20,
         interval: 2,
         position: 'right',
         alignTicks: true,
-        // offset: 80,
         axisLine: {
           show: true,
           lineStyle: {
-            color: colors[2]
+            color: colors[1]
           }
         },
         axisLabel: {
@@ -140,34 +106,20 @@ function drawChart() {
       },
       {
         type: 'value',
-        name: 'Clear sky',
+        name: 'Cloud cover',
         position: 'right',
         alignTicks: true,
-        offset: 210,
+        offset: 70,
+        min: 0,
+        max: 100,
         axisLine: {
           show: true,
           lineStyle: {
-            color: colors[3]
+            color: colors[2]
           }
         },
         axisLabel: {
           formatter: '{value} %'
-        }
-      },
-      {
-        type: 'value',
-        name: 'Wind speed',
-        position: 'right',
-        alignTicks: true,
-        offset: 140,
-        axisLine: {
-          show: true,
-          lineStyle: {
-            color: colors[4]
-          }
-        },
-        axisLabel: {
-          formatter: '{value} km/h'
         }
       }
     ],
@@ -176,11 +128,13 @@ function drawChart() {
         type: 'slider',
         xAxisIndex: 0,
         zoomLock: true,
-        width: 800,
-        right: 100,
         start: 0,
         end: 100,
-        handleSize: 20
+        handleSize: 20,
+        right: 'ph',
+        top: 'ph',
+        width: 'ph',
+        height: 'ph'
       }
     ],
     series: [
@@ -190,23 +144,23 @@ function drawChart() {
         smooth: true,
         data: props.temperature
       },
-      {
-        name: 'Pressure',
-        type: 'bar',
-        yAxisIndex: 1,
-        data: props.pressure
-      },
+      // {
+      //   name: 'Pressure',
+      //   type: 'bar',
+      //   yAxisIndex: 1,
+      //   data: props.pressure
+      // },
       {
         name: 'Precipitation',
         type: 'bar',
-        yAxisIndex: 2,
+        yAxisIndex: 1,
         data: props.precipitation
       },
       {
         name: 'Cloud cover',
         type: 'line',
         smooth: true,
-        yAxisIndex: 3,
+        yAxisIndex: 2,
         lineStyle: {
           opacity: 1,
           width: 0
@@ -215,22 +169,22 @@ function drawChart() {
           color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
             {
               offset: 0,
-              color: 'rgb(255,218,68)'
+              color: 'rgb(168,168,168)'
             },
             {
               offset: 1,
-              color: 'rgba(255,218,68,0.07)'
+              color: 'rgba(168,168,168,0.21)'
             }
           ])
         },
-        data: props.skyClearness
-      },
-      {
-        name: 'Wind speed',
-        type: 'line',
-        yAxisIndex: 4,
-        data: props.wind
+        data: props.cloudCover
       }
+      // {
+      //   name: 'Wind speed',
+      //   type: 'line',
+      //   yAxisIndex: 4,
+      //   data: props.wind
+      // }
     ]
   }
   myChart.setOption(option)

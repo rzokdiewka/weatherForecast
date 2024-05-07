@@ -2,49 +2,54 @@
 import TownSearch from '@/components/TownSearch.vue'
 import Forecast, { type WeatherData } from '@/components/ForecastFetcher.vue'
 import Charts from '@/components/ChartsDrawer.vue'
-import { reactive, watch } from 'vue'
+import { reactive, ref } from 'vue'
 
-const coordinates = reactive({ lon: null, lat: null })
+const refetch = ref<boolean>(false)
+const coordinates = reactive({ lon: null, lat: null, name: null })
 const forecastData = reactive({
   date: [] as string[],
   temperature: [] as number[],
   pressure: [] as number[],
   precipitation: [] as string[],
-  skyClearness: [] as number[],
+  cloudCover: [] as number[],
   wind: [] as number[]
 })
 const getCoordinates = (coords) => {
   coordinates.lon = coords.lon.value
   coordinates.lat = coords.lat.value
-
-  console.log(coordinates)
+  coordinates.name = coords.name.value
 }
-
+const refreshForecast = (refresh: boolean) => {
+  refetch.value = refresh
+}
 const getForecastData = (fd: WeatherData) => {
   forecastData.date = fd.hourly.time
   forecastData.temperature = fd.hourly.temperature2m
   forecastData.precipitation = fd.hourly.precipitation
   forecastData.pressure = fd.hourly.surfacePressure
-  forecastData.skyClearness = fd.hourly.skyClearness
+  forecastData.cloudCover = fd.hourly.cloudCover
   forecastData.wind = fd.hourly.windSpeed10m
-  console.log('forec', forecastData)
 }
-watch(
-  () => forecastData,
-  () => console.log('forec watch', forecastData)
-)
 </script>
 
 <template>
-  <town-search @update-coordinates="getCoordinates" />
-  <forecast :lon="coordinates.lon" :lat="coordinates.lat" @update-forecast="getForecastData" />
-  <div id="chart-container" style="width: 1000px; height: 600px">
+  <town-search @update-coordinates="getCoordinates" @refresh="refreshForecast" />
+
+  <forecast
+    :town="coordinates.name"
+    :lon="coordinates.lon"
+    :lat="coordinates.lat"
+    :refetch="refetch"
+    @update-forecast="getForecastData"
+  />
+  <div id="chart-container"     v-if="coordinates.name"
+        style="width: 1000px; height: 600px">
     <charts
       :date="forecastData.date"
       :temperature="forecastData.temperature"
       :pressure="forecastData.pressure"
       :precipitation="forecastData.precipitation"
-      :skyClearness="forecastData.skyClearness"
+      :cloudCover="forecastData.cloudCover"
       :wind="forecastData.wind"
     />
   </div>
