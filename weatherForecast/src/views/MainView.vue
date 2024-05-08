@@ -51,8 +51,12 @@ const getForecastData = (fd: WeatherData) => {
     :refetch="refetch"
     @update-forecast="getForecastData"
   />
-  <div id="chart-container" v-if="coordinates.name" style="width: 1000px; height: 600px">
-    <ForecastCharts :forecastData="forecastData" />
+  <div v-if="coordinates.name">
+
+    <div id="chart-container"  style="width: 1000px; height: 600px">
+      <ForecastCharts :forecastData="forecastData" />
+    </div>
+    <ForecastTable  :forecastData="forecastData" />
   </div>
-  <ForecastTable v-if="coordinates.name" :forecastData="forecastData" />
+
 </template>

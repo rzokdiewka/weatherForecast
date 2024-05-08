@@ -103,14 +103,13 @@ watch(
   () => forecastData.value,
   () => {
     const data: WeatherData = transformData(forecastData.value)
-    console.log('forecast', data)
     emit('updateForecast', data)
   }
 )
 </script>
 
 <template>
-  <div v-if="town">{{ town }}, {{ timezone }}</div>
+  <span v-if="town">{{ town }}, {{ timezone }}</span>
 </template>
 
 <style scoped></style>

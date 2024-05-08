@@ -1,15 +1,27 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 const townInput = ref()
 let queryParams = null
 const townCoordinatesUrl = ref()
 const lon = ref()
 const lat = ref()
-const name = ref()
+const name = ref(null)
 const refresh = ref<boolean>(false)
 
 const emit = defineEmits(['updateCoordinates', 'refresh'])
+let input: HTMLDataElement = document.getElementById("search-input")
+
+onMounted(()=> {
+  input = document.getElementById("search-input")
+
+  input.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      document.getElementById("search-button").click()
+    }
+  });
+})
 
 const getTownCoordinates = async () => {
   await fetch(townCoordinatesUrl.value)
@@ -34,9 +46,9 @@ watch(
 </script>
 
 <template>
-  <div class="flex">
-    <input v-model="townInput" type="text" class="grow" placeholder="Search" />
-    <button class="btn btn-neutral" @click="getTownCoordinates">fetch coordinates</button>
+  <div class="search">
+    <input id="search-input" v-model="townInput" type="text" placeholder="Insert town" />
+    <button id="search-button"  @click="getTownCoordinates">Fetch forecast</button>
   </div>
 </template>
 
@@ -46,5 +58,10 @@ input[type='text'] {
   background-position: 0.5rem 0.5rem;
   background-repeat: no-repeat;
   padding: 0.75rem 1rem 0.75rem 2.5rem;
+}
+
+.search {
+  display: flex;
+  flex-direction: row;
 }
 </style>
